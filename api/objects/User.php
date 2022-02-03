@@ -35,7 +35,7 @@ class User {
         return $stmt;
     }
 
-    public function check_phone_unique($phone) {
+    public function check_phone_coincidence($phone) {
         $query = "
         SELECT `phone` FROM users WHERE `phone` = :phone
         ";
@@ -47,6 +47,28 @@ class User {
         $stmt->execute();
 
         if (count($stmt->fetchAll(PDO::FETCH_COLUMN)) == 0)
+            return true;
+
+        return false;
+    }
+
+    public function authorization($user_data) {
+        $phone = $user_data[phone];
+        $password = $user_data[password];
+
+        $query = "
+        SELECT `password` FROM users WHERE `phone` = :phone
+        ";
+
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindParam((':phone'),  htmlspecialchars($phone), PDO::PARAM_STR);
+
+        $stmt->execute();
+
+        $acceptedPassword = $stmt->fetchAll(PDO::FETCH_COLUMN)[0];
+
+        if ($acceptedPassword == $password)
             return true;
 
         return false;
