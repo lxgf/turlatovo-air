@@ -18,8 +18,8 @@ class User {
 
     public function registration($user_data) {
         $query = "
-        INSERT INTO users (`first_name`, `last_name`, `phone`, `document_number`, `password`, `api_token`)
-        VALUES (:first_name, :last_name, :phone, :document_number, :password, :api_token)
+        INSERT INTO users (`first_name`, `last_name`, `phone`, `document_number`, `password`, `api_token`, `created_at`, `updated_at`)
+        VALUES (:first_name, :last_name, :phone, :document_number, :password, :api_token, NOW(), NOW())
         ";
 
         $stmt = $this->conn->prepare($query);
