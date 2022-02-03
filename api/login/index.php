@@ -21,8 +21,11 @@ foreach ($_POST as $field_key => $field_value) {
 }
 
 if (count($errors) == 0) {
-    if ($user->authorization($_POST) == true) {
+    $auth_response = $user->authorization($_POST);
+    if ($auth_response['success'] == true) {
         http_response_code(200);
+        $data = ['token' => $auth_response['token']];
+        echo(json_encode(['data' => $data]));
     } else {
         $field_error = new FieldError('phone', ('Phone or password is incorrect'));;
         array_push($errors, $field_error->to_array());

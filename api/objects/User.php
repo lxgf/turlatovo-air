@@ -57,7 +57,7 @@ class User {
         $password = $user_data[password];
 
         $query = "
-        SELECT `password` FROM users WHERE `phone` = :phone
+        SELECT `password`, `api_token` FROM users WHERE `phone` = :phone
         ";
 
         $stmt = $this->conn->prepare($query);
@@ -66,10 +66,14 @@ class User {
 
         $stmt->execute();
 
-        $acceptedPassword = $stmt->fetchAll(PDO::FETCH_COLUMN)[0];
+        $response = $stmt->fetch();
+
+        $acceptedPassword = $response['password'];
+
+        $acceptedToken = $response['api_token'];
 
         if ($acceptedPassword == $password)
-            return true;
+            return ['success' => true, 'token' => $acceptedToken];
 
         return false;
     }
