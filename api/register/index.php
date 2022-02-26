@@ -13,6 +13,19 @@ $user = new User($db);
 
 $errors = [];
 
+$required_fields = ['first_name', 'last_name', 'phone', 'document_number', 'password'];
+
+foreach ($required_fields as $required_field) {
+    if (!isset($_POST[$required_field])) {
+        $field_error = new FieldError('general', ('All fields are required!'));
+        array_push($errors, $field_error->to_array());
+        http_response_code(422);
+        $error_response = new ErrorResponse(http_response_code(), 'Validation Error', $errors);
+        echo(json_encode($error_response->to_array(), JSON_UNESCAPED_UNICODE));
+        return;
+    }
+}
+
 foreach ($_POST as $field_key => $field_value) {
     if (strlen($field_value) == 0) {
         $field_error = new FieldError($field_key, ($field_key . ' is empty!'));

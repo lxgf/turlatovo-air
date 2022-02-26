@@ -20,23 +20,33 @@ foreach ($_POST as $field_key => $field_value) {
     }
 }
 
-if (count($errors) == 0) {
-    $auth_response = $user->authorization($_POST);
-    if ($auth_response['success'] == true) {
-        http_response_code(200);
-        $data = ['token' => $auth_response['token']];
-        echo(json_encode(['data' => $data]));
+if (isset($_POST['phone']) and isset($_POST['password'])) {
+    if (count($errors) == 0) {
+        $auth_response = $user->authorization($_POST);
+        if ($auth_response['success'] == true) {
+            http_response_code(200);
+            $data = ['token' => $auth_response['token']];
+            echo(json_encode(['data' => $data]));
+        } else {
+            $field_error = new FieldError('phone', ('Phone or password is incorrect'));;
+            array_push($errors, $field_error->to_array());
+            $field_error = new FieldError('password', ('Phone or password is incorrect'));
+            array_push($errors, $field_error->to_array());
+            http_response_code(401);
+            $error_response = new ErrorResponse(http_response_code(), 'Unauthorized', $errors);
+            echo(json_encode($error_response->to_array(), JSON_UNESCAPED_UNICODE));
+        }
     } else {
-        $field_error = new FieldError('phone', ('Phone or password is incorrect'));;
-        array_push($errors, $field_error->to_array());
-        $field_error = new FieldError('password', ('Phone or password is incorrect'));
-        array_push($errors, $field_error->to_array());
-        http_response_code(401);
-        $error_response = new ErrorResponse(http_response_code(), 'Unauthorized', $errors);
+        http_response_code(422);
+        $error_response = new ErrorResponse(http_response_code(), 'Validation Error', $errors);
         echo(json_encode($error_response->to_array(), JSON_UNESCAPED_UNICODE));
     }
 } else {
+    $field_error = new FieldError('general', ('All fields are required!'));
+    array_push($errors, $field_error->to_array());
     http_response_code(422);
     $error_response = new ErrorResponse(http_response_code(), 'Validation Error', $errors);
     echo(json_encode($error_response->to_array(), JSON_UNESCAPED_UNICODE));
 }
+
+
